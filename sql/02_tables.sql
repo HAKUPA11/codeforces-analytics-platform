@@ -106,14 +106,7 @@ CREATE TABLE contests (
     last_api_sync TIMESTAMP NULL
 );
 
-CREATE INDEX idx_contest_type
-ON contests(contest_type);
 
-CREATE INDEX idx_contest_phase
-ON contests(contest_phase);
-
-CREATE INDEX idx_start_time
-ON contests(start_time);
 
 -- =========================================================
 -- TABLE 3 : PROBLEMS
@@ -175,14 +168,7 @@ CREATE TABLE problems (
 
 );
 
-CREATE INDEX idx_problem_contest
-ON problems(contest_id);
 
-CREATE INDEX idx_problem_rating
-ON problems(problem_rating);
-
-CREATE INDEX idx_problem_name
-ON problems(problem_name);
 
 -- =========================================================
 -- TABLE 4 : TAGS
@@ -284,23 +270,6 @@ CREATE TABLE submissions (
 
 );
 
-CREATE INDEX idx_submission_user
-ON submissions(user_id);
-
-CREATE INDEX idx_submission_problem
-ON submissions(problem_id);
-
-CREATE INDEX idx_submission_contest
-ON submissions(contest_id);
-
-CREATE INDEX idx_submission_verdict
-ON submissions(verdict);
-
-CREATE INDEX idx_submission_time
-ON submissions(submission_time);
-
-CREATE INDEX idx_submission_language
-ON submissions(programming_language);
 
 -- =========================================================
 -- TABLE 7 : RATING_HISTORY
@@ -347,11 +316,4 @@ CREATE TABLE rating_history (
 
 );
 
-CREATE INDEX idx_rating_user
-ON rating_history(user_id);
 
-CREATE INDEX idx_rating_contest
-ON rating_history(contest_id);
-
-CREATE INDEX idx_rating_time
-ON rating_history(rating_update_time);
