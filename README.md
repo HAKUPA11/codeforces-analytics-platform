@@ -52,22 +52,26 @@ The project demonstrates practical applications of database engineering, SQL pro
 - Git
 - GitHub
 
-Codeforces API
-        │
-        ▼
-Python ETL
-        │
-        ▼
-Stored Procedures
-        │
-        ▼
-MySQL Database
-        │
-        ▼
-Views
-        │
-        ▼
-Analytics Queries
+## System Architecture
+
+```mermaid
+flowchart TD
+
+    A[Codeforces API] --> B[Python ETL Pipeline]
+
+    B --> C[Stored Procedures]
+
+    C --> D[(MySQL Database)]
+
+    D --> E[Database Views]
+    D --> F[Analytics Queries]
+    D --> G[Database Triggers]
+
+    E --> H[Business Reports]
+    F --> H
+    G --> H
+
+```
 
 
 ## Database Schema
