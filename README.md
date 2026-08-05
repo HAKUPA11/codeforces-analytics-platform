@@ -1,27 +1,5 @@
 # Codeforces Analytics Platform
 
-A production-style analytics platform built using the Codeforces API.
+A full-stack data engineering and database analytics project that collects, stores, and analyzes competitive programming data from the Codeforces API.
 
-## Tech Stack
-
-- MySQL
-- Python
-- Pandas
-- SQLAlchemy
-- Requests
-- Matplotlib
-- Git
-- GitHub
-
-## Features (Planned)
-
-- Fetch data from Codeforces API
-- Store data in MySQL
-- Analyze contests and users
-- SQL reports
-- Python analytics
-- Interactive dashboard
-
-## Project Status
-
-🚧 Currently in development.
+The platform automates data ingestion using Python ETL pipelines, stores normalized data in MySQL, and provides SQL-based analytical insights through views, stored procedures, and business analytics queries.
