@@ -12,26 +12,25 @@ Python • MySQL • SQL • ETL • REST API • Data Analytics
 
 </div>
 
-## Project Overview
 
-The Codeforces Analytics Platform is designed to automate the collection and analysis of competitive programming data.
+## Overview
 
-The project retrieves live data from the official Codeforces API, stores it in a normalized MySQL database, and provides meaningful analytical queries for users, contests, problems, submissions, and rating history.
+Competitive programming platforms generate a massive amount of valuable data every day—contest participation, problem solving patterns, rating changes, submission statistics, and language usage.
 
-The objective of this project is to demonstrate practical database design, SQL programming, ETL development, and API integration using real-world data.
+The **Codeforces Analytics Platform** transforms this raw data into a structured relational database capable of supporting analytical queries and reporting. Using the official Codeforces API, the platform automatically extracts data, processes it through Python ETL pipelines, and stores it in a normalized MySQL database designed for efficient querying and future scalability.
 
-## Features
+The project demonstrates practical applications of database engineering, SQL programming, API integration, and data pipeline development using real-world data.
 
-- Automated data extraction from Codeforces API
-- Normalized relational database
-- MySQL Views
-- Stored Procedures
-- Database Triggers
-- Business Analytics Queries
-- Python ETL Pipelines
-- Duplicate-safe Upsert Operations
-- Rating History Tracking
-- Problem Tag Mapping
+## Core Capabilities
+
+| Capability | Description |
+|------------|-------------|
+| Automated Data Collection | Retrieves live data directly from the official Codeforces API |
+| ETL Pipeline | Extracts, transforms and loads data into MySQL |
+| Relational Database | Stores normalized contest, user and submission data |
+| SQL Programming | Implements Views, Stored Procedures and Triggers |
+| Analytics | Generates meaningful insights through SQL queries |
+| Data Integrity | Prevents duplicate records through reusable upsert procedures |
 
 ## Tech Stack
 
