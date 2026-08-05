@@ -80,7 +80,7 @@ flowchart LR
     H --> I
 ```
 
-
+> **Note:** A detailed database schema, table definitions, constraints, and relationship descriptions are available in [`docs/Database_Schema.md`](docs/Database_Schema.md).
 ## Database Schema
 
 The platform is built on a **normalized relational database** designed to efficiently manage competitive programming data while maintaining referential integrity. The schema consists of **seven core entities** connected through foreign key relationships, enabling efficient querying and analytical reporting.
@@ -130,41 +130,82 @@ erDiagram
 - The schema is designed to support efficient analytical queries while remaining scalable for future enhancements.
 
 
-codeforces-analytics-platform/
+## Project Structure
 
-data/
+The project is organized into independent modules, separating database scripts, ETL pipelines, API integrations, documentation, and datasets. This modular architecture improves maintainability, scalability, and ease of development.
 
-docs/
+```text
+codeforces-analytics-platform
+│
+├── data
+│   ├── raw_data
+│   ├── processed_data
+│   └── backup_data
+│
+├── docs
+│   ├── API_Documentation.md
+│   ├── Database_Schema.md
+│   ├── Development_Log.md
+│   ├── ER_Diagram.md
+│   ├── Project_Roadmap.md
+│   └── Requirements.md
+│
+├── python
+│   ├── api
+│   │   └── codeforces_api.py
+│   │
+│   ├── database
+│   │   ├── db_connection.py
+│   │   └── test_connection.py
+│   │
+│   ├── etl
+│   │   ├── load_users.py
+│   │   ├── load_contests.py
+│   │   ├── load_problems.py
+│   │   ├── load_problem_tags.py
+│   │   ├── load_submissions.py
+│   │   └── load_rating_history.py
+│   │
+│   ├── utils
+│   │
+│   ├── .env
+│   ├── requirements.txt
+│   └── main.py
+│
+├── reports
+│
+├── sql
+│   ├── 01_database.sql
+│   ├── 02_tables.sql
+│   ├── 03_constraints.sql
+│   ├── 04_indexes.sql
+│   ├── 05_views.sql
+│   ├── 06_procedures.sql
+│   ├── 07_triggers.sql
+│   ├── 08_queries.sql
+│   └── 09_analytics.sql
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+```
 
-python/
+---
 
-database/
+### Directory Overview
 
-etl/
+| Directory | Purpose |
+|:----------|:--------|
+| **data/** | Stores raw, processed, and backup datasets used throughout the ETL pipeline. |
+| **docs/** | Contains detailed project documentation, schema descriptions, API references, roadmap, and development logs. |
+| **python/api/** | Handles communication with the Codeforces REST API. |
+| **python/database/** | Manages MySQL database connections and connectivity testing. |
+| **python/etl/** | Contains ETL modules responsible for extracting, transforming, and loading Codeforces data into MySQL. |
+| **python/utils/** | Utility functions shared across different modules. |
+| **reports/** | Reserved for analytical reports, exported results, and future dashboards. |
+| **sql/** | Complete collection of SQL scripts for database creation, optimization, procedures, triggers, and analytics. |
 
-api/
-
-utils/
-
-sql/
-
-01_database.sql
-
-02_tables.sql
-
-03_constraints.sql
-
-04_indexes.sql
-
-05_views.sql
-
-06_procedures.sql
-
-07_triggers.sql
-
-08_queries.sql
-
-09_analytics.sql
+> **Design Principle:** The repository follows a modular architecture where each directory is responsible for a single concern. This separation improves readability, simplifies maintenance, and allows individual components to evolve independently.
 
 
 User Handle
