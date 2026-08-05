@@ -52,25 +52,32 @@ The project demonstrates practical applications of database engineering, SQL pro
 - Git
 - GitHub
 
-## System Architecture
+## ETL Workflow
 
 ```mermaid
-flowchart TD
+flowchart LR
 
-    A[Codeforces API] --> B[Python ETL Pipeline]
+    A[Codeforces API]
 
-    B --> C[Stored Procedures]
+    A --> B1[user.info]
+    A --> B2[contest.list]
+    A --> B3[problemset.problems]
+    A --> B4[user.status]
+    A --> B5[user.rating]
 
-    C --> D[(MySQL Database)]
+    B1 --> C[load_users.py]
+    B2 --> D[load_contests.py]
+    B3 --> E[load_problems.py]
+    B3 --> F[load_problem_tags.py]
+    B4 --> G[load_submissions.py]
+    B5 --> H[load_rating_history.py]
 
-    D --> E[Database Views]
-    D --> F[Analytics Queries]
-    D --> G[Database Triggers]
-
-    E --> H[Business Reports]
-    F --> H
-    G --> H
-
+    C --> I[(MySQL Database)]
+    D --> I
+    E --> I
+    F --> I
+    G --> I
+    H --> I
 ```
 
 
