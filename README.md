@@ -208,129 +208,149 @@ codeforces-analytics-platform
 > **Design Principle:** The repository follows a modular architecture where each directory is responsible for a single concern. This separation improves readability, simplifies maintenance, and allows individual components to evolve independently.
 
 
-User Handle
-      │
-      ▼
+---
 
-Users API
+## Database Components
 
-Contest API
-
-Problemset API
-
-User Status API
-
-Rating API
-
-      │
-
-      ▼
-
-Python ETL
-
-      ▼
-
-Stored Procedures
-
-      ▼
-
-MySQL Database
-
-## Database Objects
+The database layer is designed around reusable SQL components that separate data storage, business logic, and analytical reporting.
 
 ### Tables
 
-- Users
-- Contests
-- Problems
-- Tags
-- Problem Tags
-- Submissions
-- Rating History
+| Table | Purpose |
+| :----- | :------ |
+| `users` | Stores Codeforces user profiles, ratings, organization details, and account metadata. |
+| `contests` | Contains contest information including type, phase, duration, and schedule. |
+| `problems` | Stores contest problems along with difficulty, points, and metadata. |
+| `tags` | Maintains the master list of problem tags. |
+| `problem_tags` | Implements the many-to-many relationship between problems and tags. |
+| `submissions` | Records user submissions, verdicts, execution statistics, and programming language. |
+| `rating_history` | Stores historical rating changes after every rated contest. |
 
-### Views
+### Database Views
 
-- User Profile
-- Submission Details
-- Contest Summary
-- Problem Statistics
-- User Statistics
-- Contest Statistics
-- Rating History
-- Problem Details
+The project exposes multiple SQL views to simplify analytical reporting and reduce repetitive join operations.
+
+| View | Description |
+| :--- | :---------- |
+| `vw_user_profile` | Consolidated user profile information. |
+| `vw_problem_details` | Detailed problem information with contest metadata. |
+| `vw_submission_details` | Complete submission information with user and problem details. |
+| `vw_contest_summary` | Contest overview and metadata. |
+| `vw_problem_statistics` | Submission statistics and acceptance rate for each problem. |
+| `vw_user_statistics` | User submission statistics and performance metrics. |
+| `vw_contest_statistics` | Contest-level participation and submission statistics. |
+| `vw_user_rating_history` | Historical rating progression of users. |
 
 ### Stored Procedures
 
-- User Upsert
-- Contest Upsert
-- Problem Upsert
-- Tag Upsert
-- Add Problem Tag
-- Add Submission
-- Add Rating History
+Business logic is encapsulated within reusable stored procedures to ensure consistent and duplicate-safe database operations.
+
+| Procedure | Responsibility |
+| :-------- | :------------- |
+| `sp_upsert_user` | Insert or update user information. |
+| `sp_upsert_contest` | Insert or update contest metadata. |
+| `sp_upsert_problem` | Insert or update problem information. |
+| `sp_upsert_tag` | Insert tags without duplication. |
+| `sp_add_problem_tag` | Create relationships between problems and tags. |
+| `sp_add_submission` | Insert user submissions. |
+| `sp_add_rating_history` | Store contest rating updates. |
 
 ### Triggers
 
-Database automation triggers for maintaining integrity and timestamps.
+Database triggers automate timestamp management and maintain consistency across records during insert and update operations.
 
+---
 
-## API
+## API Integration
 
-Official Codeforces API
+The platform communicates directly with the **official Codeforces REST API** to collect competitive programming data.
 
-Endpoints Used
+### Endpoints Utilized
 
-- user.info
-- contest.list
-- problemset.problems
-- user.status
-- user.rating
+| Endpoint | Purpose |
+| :------- | :------ |
+| `user.info` | Retrieves user profile information. |
+| `contest.list` | Fetches contest metadata. |
+| `problemset.problems` | Retrieves the complete problemset and associated tags. |
+| `user.status` | Collects user submission history. |
+| `user.rating` | Retrieves historical rating changes after contests. |
 
-## Setup
+---
 
-Clone Repository
+## Getting Started
 
-Install Dependencies
+Follow the steps below to set up and run the project locally.
 
+### Clone the Repository
+
+```bash
+git clone https://github.com/HAKUPA11/codeforces-analytics-platform.git
+
+cd codeforces-analytics-platform
+```
+
+### Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-Configure .env
+### Configure Environment Variables
 
-Run
+Create a `.env` file inside the `python/` directory and configure your MySQL credentials.
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=codeforces_analytics
+DB_USER=root
+DB_PASSWORD=your_password
+```
+
+### Execute the ETL Pipeline
+
+```bash
+cd python
 
 python main.py
+```
 
+---
 
 ## Current Dataset
 
-Users : 1
+The project currently contains live data collected from the Codeforces platform.
 
-Contests : 2138
+| Dataset | Records |
+| :------ | -------: |
+| Users | 1 |
+| Contests | 2,138 |
+| Problems | 10,000+ |
+| Submissions | 4,746 |
+| Rating History | 306 |
 
-Problems : 10000+
+> **Note:** The current dataset is generated using a single Codeforces handle (`tourist`) to demonstrate the complete ETL workflow. The architecture is designed to support bulk ingestion of multiple users without structural changes.
 
-Submissions : 4746
+---
 
-Rating History : 306
+## Future Enhancements
 
+The current implementation establishes a solid data engineering foundation. Planned enhancements include:
 
-## Future Improvements
+- Bulk Codeforces user ingestion
+- Interactive analytics dashboard
+- Power BI integration
+- Performance trend visualization
+- Contest recommendation system
+- Automated scheduled ETL execution
+- Machine Learning-based performance prediction
+- REST API for external analytics access
 
-- Bulk User Import
-- Interactive Dashboard
-- Power BI Reports
-- Machine Learning Based Performance Prediction
-- User Comparison
-- Contest Recommendation System
-- Scheduled ETL Jobs
-
+---
 
 ## Author
 
-Harsh Pandit
+**Harsh Pandit**
 
-GitHub:
+GitHub  
 https://github.com/HAKUPA11
-
-LinkedIn:
-
