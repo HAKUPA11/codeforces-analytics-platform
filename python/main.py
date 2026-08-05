@@ -66,12 +66,36 @@
 # if __name__ == "__main__":
 #     main()
 
-from etl.load_problem_tags import load_problem_tags
+# from etl.load_problem_tags import load_problem_tags
+
+
+# def main():
+
+#     load_problem_tags()
+
+
+# if __name__ == "__main__":
+#     main()
+
+
+# from etl.load_submissions import load_submissions
+
+
+# def main():
+
+#     load_submissions("tourist")
+
+
+# if __name__ == "__main__":
+#     main()
+
+
+from etl.load_rating_history import load_rating_history
 
 
 def main():
 
-    load_problem_tags()
+    load_rating_history("tourist")
 
 
 if __name__ == "__main__":

@@ -58,3 +58,17 @@ def get_problemset():
     """
 
     return fetch_data("problemset.problems")
+
+
+def get_user_submissions(handle):
+    return fetch_data(
+        "user.status",
+        {"handle": handle}
+    )
+
+
+def get_user_rating(handle):
+    return fetch_data(
+        "user.rating",
+        {"handle": handle}
+    )
