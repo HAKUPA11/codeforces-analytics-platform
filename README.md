@@ -31,28 +31,19 @@ The project demonstrates practical applications of database engineering, SQL pro
 | SQL Programming | Implements Views, Stored Procedures and Triggers |
 | Analytics | Generates meaningful insights through SQL queries |
 | Data Integrity | Prevents duplicate records through reusable upsert procedures |
+## Technology Stack
 
-## Tech Stack
+The platform integrates multiple technologies to automate data collection, database management, and analytical reporting.
 
-### Database
-- MySQL 8
-
-### Backend
-- Python 3
-
-### Libraries
-- mysql-connector-python
-- requests
-- python-dotenv
-
-### APIs
-- Codeforces API
-
-### Version Control
-- Git
-- GitHub
-
-## ETL Workflow
+| Layer | Technology | Purpose |
+| :---- | :--------- | :------ |
+| **Programming Language** | Python 3 | Core language used to build the ETL pipeline and API integration. |
+| **Database Management System** | MySQL 8 | Stores normalized Codeforces data and supports analytical queries. |
+| **Database Connector** | `mysql-connector-python` | Establishes communication between Python and MySQL. |
+| **HTTP Client** | `requests` | Retrieves live data from the Codeforces REST API. |
+| **Environment Management** | `python-dotenv` | Securely manages database credentials and configuration variables. |
+| **REST API** | Official Codeforces API | Provides users, contests, problems, submissions, and rating data. |
+| **Version Control** | Git & GitHub | Source code management and collaborative development. |
 
 ```mermaid
 flowchart LR
