@@ -56,7 +56,7 @@ CREATE TABLE users (
     CHECK (highest_rating >= current_rating)
 );
 
-drop table users;
+
 
 -- =========================================================
 -- TABLE 2 : CONTESTS
