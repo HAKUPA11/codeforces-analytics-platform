@@ -83,68 +83,51 @@ flowchart LR
 
 ## Database Schema
 
-### Users
+The platform is built on a **normalized relational database** designed to efficiently manage competitive programming data while maintaining referential integrity. The schema consists of **seven core entities** connected through foreign key relationships, enabling efficient querying and analytical reporting.
 
-Stores user profile information including
+### Entity Overview
 
-- Handle
-- Ratings
-- Contribution
-- Organization
-- Country
-- Friend Count
-
----
-
-### Contests
-
-Stores contest metadata
-
-- Contest ID
-- Contest Name
-- Contest Type
-- Contest Phase
-- Duration
+| Table | Description | Primary Key |
+| :----- | :---------- | :---------- |
+| `users` | Stores Codeforces user profiles, ratings, organizations, and account metadata. | `user_id` |
+| `contests` | Maintains contest information including contest type, phase, duration, and schedule. | `contest_id` |
+| `problems` | Contains contest problems along with rating, points, difficulty, and metadata. | `problem_id` |
+| `tags` | Stores the master list of problem tags used for categorization. | `tag_id` |
+| `problem_tags` | Junction table implementing the many-to-many relationship between problems and tags. | `(problem_id, tag_id)` |
+| `submissions` | Records user submissions, verdicts, execution time, memory usage, and programming language. | `submission_id` |
+| `rating_history` | Stores historical rating updates after every rated contest. | `rating_history_id` |
 
 ---
 
-### Problems
+### Entity Relationships
 
-Stores contest problems
+```mermaid
+erDiagram
 
-- Problem Index
-- Rating
-- Points
-- Type
+    USERS ||--o{ SUBMISSIONS : submits
+    CONTESTS ||--o{ SUBMISSIONS : contains
+    PROBLEMS ||--o{ SUBMISSIONS : attempts
 
----
+    CONTESTS ||--o{ PROBLEMS : includes
 
-### Submissions
+    USERS ||--o{ RATING_HISTORY : has
+    CONTESTS ||--o{ RATING_HISTORY : updates
 
-Stores submission history
-
-- Verdict
-- Language
-- Execution Time
-- Memory Usage
+    PROBLEMS ||--o{ PROBLEM_TAGS : categorized_as
+    TAGS ||--o{ PROBLEM_TAGS : classifies
+```
 
 ---
 
-### Rating History
+### Design Highlights
 
-Stores rating changes after every contest.
-
----
-
-### Tags
-
-Stores problem tags.
-
----
-
-### Problem Tags
-
-Many-to-many relationship between Problems and Tags.
+- Database follows **Third Normal Form (3NF)** to eliminate redundancy and improve maintainability.
+- **Primary Keys** uniquely identify every entity.
+- **Foreign Keys** enforce referential integrity across related tables.
+- **Stored Procedures** are used for controlled insertion and update operations.
+- **Views** simplify analytical reporting by exposing pre-joined datasets.
+- **Triggers** automate timestamp management and maintain database consistency.
+- The schema is designed to support efficient analytical queries while remaining scalable for future enhancements.
 
 
 codeforces-analytics-platform/
