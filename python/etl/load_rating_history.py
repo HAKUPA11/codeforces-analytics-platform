@@ -6,83 +6,100 @@ from database.db_connection import get_connection
 
 def load_rating_history(handle):
 
-    ratings = get_user_rating(handle)
+  ratings = get_user_rating(handle)
 
-    if ratings is None:
-        print("Failed to fetch rating history.")
-        return
+  if ratings is None:
+    print("Failed to fetch rating history.")
+    return
 
-    connection = get_connection()
+  connection = get_connection()
 
-    if connection is None:
-        print("Database connection failed.")
-        return
+  if connection is None:
+    print("Database connection failed.")
+    return
 
-    cursor = connection.cursor()
+  cursor = connection.cursor()
 
-    processed = 0
-
-    try:
-
-        # ---------------------------------------
-        # Get user_id
-        # ---------------------------------------
-
-        cursor.execute(
-            """
+  try:
+    # ---------------------------------------
+    # Get user_id
+    # ---------------------------------------
+    cursor.execute(
+        """
             SELECT user_id
             FROM users
             WHERE handle = %s
             """,
-            (handle,)
-        )
+        (handle,),
+    )
 
-        result = cursor.fetchone()
+    result = cursor.fetchone()
 
-        if result is None:
-            print(f"User '{handle}' not found.")
-            return
+    if result is None:
+      print(f"User '{handle}' not found.")
+      return
 
-        user_id = result[0]
+    user_id = result[0]
 
-        # ---------------------------------------
-        # Process rating history
-        # ---------------------------------------
+    # ---------------------------------------
+    # Batch Process rating history
+    # ---------------------------------------
+    upsert_query = """
+            INSERT INTO rating_history (
+                user_id,
+                contest_id,
+                contest_rank,
+                old_rating,
+                new_rating,
+                rating_update_time,
+                source
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                contest_rank = VALUES(contest_rank),
+                old_rating = VALUES(old_rating),
+                new_rating = VALUES(new_rating),
+                rating_update_time = VALUES(rating_update_time),
+                updated_at = CURRENT_TIMESTAMP;
+        """
 
-        for rating in ratings:
+    batch_data = []
 
-            rating_time = datetime.fromtimestamp(
-                rating["ratingUpdateTimeSeconds"]
-            )
+    for rating in ratings:
+      rating_time = datetime.fromtimestamp(rating["ratingUpdateTimeSeconds"])
 
-            cursor.callproc(
-                "sp_add_rating_history",
-                (
-                    user_id,
-                    rating["contestId"],
-                    rating["rank"],
-                    rating["oldRating"],
-                    rating["newRating"],
-                    rating_time,
-                    "Codeforces"
-                )
-            )
+      batch_data.append((
+          user_id,
+          rating["contestId"],
+          rating["rank"],
+          rating["oldRating"],
+          rating["newRating"],
+          rating_time,
+          "Codeforces",
+      ))
 
-            processed += 1
+    if batch_data:
+      # Send all rating history records in a single payload
+      cursor.executemany(upsert_query, batch_data)
+      connection.commit()
+      print(
+          f"✅ {len(batch_data)} rating history records inserted/updated"
+          " successfully in batch."
+      )
+    else:
+      print("No rating history records found to insert.")
 
-        connection.commit()
+  except Exception as e:
 
-        print(
-            f"✅ {processed} rating history records inserted successfully."
-        )
+    connection.rollback()
 
-    except Exception as e:
+    print("Error during batch insert:", e)
 
-        connection.rollback()
+  finally:
 
-        print("Error:", e)
+    cursor.close()
+    connection.close()
 
-    finally:
 
-        cursor.close()
-        connection.close()
+if __name__ == "__main__":
+
+  load_rating_history("tourist")

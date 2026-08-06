@@ -6,130 +6,138 @@ from database.db_connection import get_connection
 
 def load_submissions(handle):
 
-    submissions = get_user_submissions(handle)
+  submissions = get_user_submissions(handle)
 
-    if submissions is None:
-        print("Failed to fetch submissions.")
-        return
+  if submissions is None:
+    print("Failed to fetch submissions.")
+    return
 
-    connection = get_connection()
+  connection = get_connection()
 
-    if connection is None:
-        print("Database connection failed.")
-        return
+  if connection is None:
+    print("Database connection failed.")
+    return
 
-    cursor = connection.cursor()
+  cursor = connection.cursor()
 
-    processed = 0
-
-    try:
-
-        # ---------------------------------------
-        # Get user_id from database
-        # ---------------------------------------
-
-        cursor.execute(
-            """
+  try:
+    # ---------------------------------------------------------
+    # 1. Fetch user_id
+    # ---------------------------------------------------------
+    cursor.execute(
+        """
             SELECT user_id
             FROM users
             WHERE handle = %s
             """,
-            (handle,)
-        )
+        (handle,),
+    )
 
-        result = cursor.fetchone()
+    result = cursor.fetchone()
 
-        if result is None:
-            print(f"User '{handle}' not found.")
-            return
+    if result is None:
+      print(f"User '{handle}' not found.")
+      return
 
-        user_id = result[0]
+    user_id = result[0]
 
-        # ---------------------------------------
-        # Process each submission
-        # ---------------------------------------
+    # ---------------------------------------------------------
+    # 2. Fetch all problems mapping in ONE query (Fast Lookup)
+    # ---------------------------------------------------------
+    cursor.execute("""
+            SELECT contest_id, problem_index, problem_id
+            FROM problems
+        """)
 
-        for submission in submissions:
+    # Map: (contest_id, problem_index) -> problem_id
+    problem_map = {
+        (row[0], row[1]): row[2] for row in cursor.fetchall()
+    }
 
-            if "contestId" not in submission:
-                continue
+    # ---------------------------------------------------------
+    # 3. Prepare Submissions Batch Data
+    # ---------------------------------------------------------
+    upsert_query = """
+            INSERT INTO submissions (
+                submission_id,
+                user_id,
+                contest_id,
+                problem_id,
+                programming_language,
+                verdict,
+                passed_test_count,
+                execution_time_ms,
+                memory_bytes,
+                submission_time,
+                relative_time_seconds,
+                source
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                verdict = VALUES(verdict),
+                passed_test_count = VALUES(passed_test_count),
+                execution_time_ms = VALUES(execution_time_ms),
+                memory_bytes = VALUES(memory_bytes),
+                updated_at = CURRENT_TIMESTAMP;
+        """
 
-            if "problem" not in submission:
-                continue
+    batch_data = []
 
-            contest_id = submission["contestId"]
+    for submission in submissions:
+      if "contestId" not in submission or "problem" not in submission:
+        continue
 
-            problem_index = submission["problem"]["index"]
+      contest_id = submission["contestId"]
+      problem_index = submission["problem"]["index"]
 
-            # ---------------------------------------
-            # Find problem_id
-            # ---------------------------------------
+      # Instant dictionary lookup without network roundtrips
+      problem_id = problem_map.get((contest_id, problem_index))
 
-            cursor.execute(
-                """
-                SELECT problem_id
-                FROM problems
-                WHERE contest_id = %s
-                  AND problem_index = %s
-                """,
-                (
-                    contest_id,
-                    problem_index
-                )
-            )
+      if problem_id is None:
+        continue
 
-            problem = cursor.fetchone()
+      submission_time = datetime.fromtimestamp(
+          submission["creationTimeSeconds"]
+      )
 
-            if problem is None:
-                continue
+      batch_data.append((
+          submission["id"],
+          user_id,
+          contest_id,
+          problem_id,
+          submission["programmingLanguage"],
+          submission.get("verdict", "TESTING"),
+          submission.get("passedTestCount", 0),
+          submission.get("timeConsumedMillis"),
+          submission.get("memoryConsumedBytes"),
+          submission_time,
+          submission.get("relativeTimeSeconds"),
+          "Codeforces",
+      ))
 
-            problem_id = problem[0]
+    # ---------------------------------------------------------
+    # 4. Execute Batch Payload
+    # ---------------------------------------------------------
+    if batch_data:
+      cursor.executemany(upsert_query, batch_data)
+      connection.commit()
+      print(
+          f"✅ {len(batch_data)} submissions inserted/updated successfully in batch."
+      )
+    else:
+      print("No valid submissions found to insert.")
 
-            # ---------------------------------------
-            # Convert timestamp
-            # ---------------------------------------
+  except Exception as e:
 
-            submission_time = datetime.fromtimestamp(
-                submission["creationTimeSeconds"]
-            )
+    connection.rollback()
 
-            # ---------------------------------------
-            # Call procedure
-            # ---------------------------------------
+    print("Error during batch insert:", e)
 
-            cursor.callproc(
-                "sp_add_submission",
-                (
-                    submission["id"],
-                    user_id,
-                    contest_id,
-                    problem_id,
-                    submission["programmingLanguage"],
-                    submission.get("verdict"),
-                    submission.get("passedTestCount", 0),
-                    submission.get("timeConsumedMillis"),
-                    submission.get("memoryConsumedBytes"),
-                    submission_time,
-                    submission.get("relativeTimeSeconds"),
-                    "Codeforces"
-                )
-            )
+  finally:
 
-            processed += 1
+    cursor.close()
+    connection.close()
 
-        connection.commit()
 
-        print(
-            f"✅ {processed} submissions inserted successfully."
-        )
+if __name__ == "__main__":
 
-    except Exception as e:
-
-        connection.rollback()
-
-        print("Error:", e)
-
-    finally:
-
-        cursor.close()
-        connection.close()
+  load_submissions("tourist")

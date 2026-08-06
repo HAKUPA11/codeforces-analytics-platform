@@ -6,66 +6,83 @@ from database.db_connection import get_connection
 
 def load_contests():
 
-    contests = get_contest_list()
+  contests = get_contest_list()
 
-    if contests is None:
-        print("Failed to fetch contests.")
-        return
+  if contests is None:
+    print("Failed to fetch contests.")
+    return
 
-    connection = get_connection()
+  connection = get_connection()
 
-    if connection is None:
-        print("Database connection failed.")
-        return
+  if connection is None:
+    print("Database connection failed.")
+    return
 
-    cursor = connection.cursor()
+  cursor = connection.cursor()
 
-    inserted = 0
+  # High-performance batch upsert query
+  upsert_query = """
+        INSERT INTO contests (
+            contest_id,
+            contest_name,
+            contest_type,
+            contest_phase,
+            is_frozen,
+            duration_seconds,
+            start_time,
+            source
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            contest_name = VALUES(contest_name),
+            contest_type = VALUES(contest_type),
+            contest_phase = VALUES(contest_phase),
+            is_frozen = VALUES(is_frozen),
+            duration_seconds = VALUES(duration_seconds),
+            start_time = VALUES(start_time),
+            updated_at = CURRENT_TIMESTAMP;
+    """
 
-    try:
+  batch_data = []
 
-        for contest in contests:
+  for contest in contests:
+    start_time = None
 
-            start_time = None
+    if "startTimeSeconds" in contest:
+      start_time = datetime.fromtimestamp(contest["startTimeSeconds"])
 
-            if "startTimeSeconds" in contest:
+    batch_data.append((
+        contest["id"],
+        contest["name"],
+        contest["type"],
+        contest["phase"],
+        contest["frozen"],
+        contest["durationSeconds"],
+        start_time,
+        "Codeforces",
+    ))
 
-                start_time = datetime.fromtimestamp(
-                    contest["startTimeSeconds"]
-                )
+  try:
+    # Sends all contests in a single network payload
+    cursor.executemany(upsert_query, batch_data)
 
-            cursor.callproc(
-                "sp_upsert_contest",
-                (
-                    contest["id"],
-                    contest["name"],
-                    contest["type"],
-                    contest["phase"],
-                    contest["frozen"],
-                    contest["durationSeconds"],
-                    start_time,
-                    "Codeforces"
-                )
-            )
+    connection.commit()
 
-            inserted += 1
+    print(
+        f"✅ {len(batch_data)} contests inserted/updated successfully in batch."
+    )
 
-        connection.commit()
+  except Exception as e:
 
-        print(f"✅ {inserted} contests inserted/updated successfully.")
+    connection.rollback()
 
-    except Exception as e:
+    print("Error during batch insert:", e)
 
-        connection.rollback()
+  finally:
 
-        print("Error:", e)
-
-    finally:
-
-        cursor.close()
-        connection.close()
+    cursor.close()
+    connection.close()
 
 
 if __name__ == "__main__":
 
-    load_contests()
+  load_contests()
