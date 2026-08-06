@@ -316,4 +316,20 @@ CREATE TABLE rating_history (
 
 );
 
+ALTER TABLE rating_history
+MODIFY old_rating INT NOT NULL;
+
+ALTER TABLE rating_history
+MODIFY new_rating INT NOT NULL;
+
+DESCRIBE rating_history;
+
+ALTER TABLE rating_history
+DROP COLUMN rating_change;
+
+ALTER TABLE rating_history
+ADD rating_change INT
+GENERATED ALWAYS AS (
+    CAST(new_rating AS SIGNED) - CAST(old_rating AS SIGNED)
+) STORED;
 

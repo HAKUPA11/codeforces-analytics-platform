@@ -250,10 +250,44 @@ END $$
 
 DELIMITER ;
 
+-- =========================================================
+-- PROCEDURE 4 : UPSERT TAG
+-- =========================================================
 
+DROP PROCEDURE IF EXISTS sp_upsert_tag;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_upsert_tag(
+
+    IN p_tag_name VARCHAR(100)
+
+)
+
+BEGIN
+
+    INSERT INTO tags(
+
+        tag_name
+
+    )
+
+    VALUES(
+
+        p_tag_name
+
+    )
+
+    ON DUPLICATE KEY UPDATE
+
+        tag_name = VALUES(tag_name);
+
+END $$
+
+DELIMITER ;
 
 -- =========================================================
--- PROCEDURE 4 : ADD PROBLEM TAG
+-- PROCEDURE 5 : ADD PROBLEM TAG
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_add_problem_tag;
@@ -292,7 +326,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 5 : ADD SUBMISSION
+-- PROCEDURE 6 : ADD SUBMISSION
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_add_submission;
@@ -396,7 +430,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 6 : ADD RATING HISTORY
+-- PROCEDURE 7 : ADD RATING HISTORY
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_add_rating_history;
@@ -481,7 +515,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 7 : GET USER STATISTICS
+-- PROCEDURE 8 : GET USER STATISTICS
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_get_user_statistics;
@@ -508,7 +542,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 8 : GET PROBLEM STATISTICS
+-- PROCEDURE 9 : GET PROBLEM STATISTICS
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_get_problem_statistics;
@@ -535,7 +569,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 9 : GET CONTEST STATISTICS
+-- PROCEDURE 10 : GET CONTEST STATISTICS
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_get_contest_statistics;
@@ -562,7 +596,7 @@ DELIMITER ;
 
 
 -- =========================================================
--- PROCEDURE 10 : GET USER SUBMISSION HISTORY
+-- PROCEDURE 11 : GET USER SUBMISSION HISTORY
 -- =========================================================
 
 DROP PROCEDURE IF EXISTS sp_get_user_submission_history;
