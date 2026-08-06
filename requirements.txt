@@ -1,6 +1,9 @@
+streamlit
+plotly
 requests
 pandas
 numpy
 matplotlib
 sqlalchemy
 mysql-connector-python
+python-dotenv
